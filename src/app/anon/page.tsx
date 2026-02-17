@@ -10,35 +10,35 @@ import { v4 as uuidv4 } from 'uuid'; // A library to generate unique IDs
 // why does one have to come in a formal dress for a company interview ?
 // just need the parent id
 
-import bong from "/public/svg/bong.svg";
-import bubble from "/public/svg/bubble.svg";
-import cupid from "/public/svg/cupid.svg";
-import faebook from "/public/svg/faebook.svg";
-import lsdlove from "/public/svg/lsdlove.svg";
-import loveu from "/public/svg/loveu.svg";
-import love2 from "/public/svg/love2.svg";
-import mexicanskull from "/public/svg/mexicanskull.svg";
-import rooster from "/public/svg/rooster.svg";
-import angry from "/public/svg/angry.svg";
-import beer from "/public/svg/beer.svg";
-import car from "/public/svg/car.svg";
-import clown from "/public/svg/clown.svg";
-import dislike from "/public/svg/dislike.svg";
-import draw from "/public/svg/draw.svg";
-import drug from "/public/svg/drug.svg";
-import emoji from "/public/svg/emoji.svg";
-import floater from "/public/svg/floater.svg";
-import joint from "/public/svg/joint.svg";
-import lgbt from "/public/svg/lgbt.svg";
-import lighter from "/public/svg/lighter.svg";
-import love from "/public/svg/love.svg";
-import lsd from "/public/svg/lsd.svg";
-import mushroom from "/public/svg/mushroom.svg";
-import park from "/public/svg/park.svg";
-import party from "/public/svg/party.svg";
-import rabbit from "/public/svg/rabbit.svg";
-import star from "/public/svg/star.svg";
-import tiktok from "/public/svg/tiktok.svg";
+import bong from "../../../public/svg/bong.svg";
+import bubble from "../../../public/svg/bubble.svg";
+import cupid from "../../../public/svg/cupid.svg";
+import faebook from "../../../public/svg/faebook.svg";
+import lsdlove from "../../../public/svg/lsdlove.svg";
+import loveu from "../../../public/svg/loveu.svg";
+import love2 from "../../../public/svg/love2.svg";
+import mexicanskull from "../../../public/svg/mexicanskull.svg";
+import rooster from "../../../public/svg/rooster.svg";
+import angry from "../../../public/svg/angry.svg";
+import beer from "../../../public/svg/beer.svg";
+import car from "../../../public/svg/car.svg";
+import clown from "../../../public/svg/clown.svg";
+import dislike from "../../../public/svg/dislike.svg";
+import draw from "../../../public/svg/draw.svg";
+import drug from "../../../public/svg/drug.svg";
+import emoji from "../../../public/svg/emoji.svg";
+import floater from "../../../public/svg/floater.svg";
+import joint from "../../../public/svg/joint.svg";
+import lgbt from "../../../public/svg/lgbt.svg";
+import lighter from "../../../public/svg/lighter.svg";
+import love from "../../../public/svg/love.svg";
+import lsd from "../../../public/svg/lsd.svg";
+import mushroom from "../../../public/svg/mushroom.svg";
+import park from "../../../public/svg/park.svg";
+import party from "../../../public/svg/party.svg";
+import rabbit from "../../../public/svg/rabbit.svg";
+import star from "../../../public/svg/star.svg";
+import tiktok from "../../../public/svg/tiktok.svg";
 
 const svgs = [
   bong,
