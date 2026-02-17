@@ -43,7 +43,7 @@ function Page() {
       console.log("Sending to backend:", lat, lon);
 
       const res = await axios.post(
-        "http://localhost:3001/getroom",
+        "https://chatserverv0-0-1.onrender.com/getroom",
         { lat, lon }
       );
 
