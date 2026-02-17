@@ -123,7 +123,6 @@ export default function Chat(): React.ReactElement {
   const [loading,setloading]=useState<boolean>(true);
   const [hasMoreMessages, setHasMoreMessages] = useState<boolean>(true);
   const [cursor, setCursor] = useState<string | null>(null);
-  const [scrollable, setScrollable] = useState<boolean>(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const didMount = useRef(false);
@@ -147,10 +146,16 @@ export default function Chat(): React.ReactElement {
   const socketRef = useRef<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null); // to prevent multiple connections
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
+  const isNearBottom = (): boolean => {
+    const el = containerRef.current;
+    if (!el) return true;
+    const threshold = 150; // px from the bottom
+    return el.scrollHeight - el.scrollTop - el.clientHeight <= threshold;
+  };
+
   const scrollToBottom = () => {
-   if(!scrollable) return;
+    if (!isNearBottom()) return;
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-   
   };
 // how do they work and why do they work?
   useEffect(() => {
@@ -302,7 +307,6 @@ useEffect(() => {
 
 useEffect(() => {
  
-
   scrollToBottom();
  
 }, [messages]);
@@ -313,7 +317,6 @@ useEffect(() => {
 
   // --- Event Emitters ---
   const sendMessage = (e: React.FormEvent<HTMLFormElement>) => {
-    setScrollable(true);
     e.preventDefault();
     if (!messageInput.trim()) return;
 
@@ -358,7 +361,6 @@ useEffect(() => {
         
       ) {
         loadMoreMessages();
-        setScrollable(false);
       }
     },
     {
