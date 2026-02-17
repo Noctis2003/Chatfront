@@ -205,7 +205,7 @@ useEffect(() => {
 
   useEffect(() => {
     // --- Socket Connection and Event Handlers ---
-    const socket = io("http://localhost:3001");
+    const socket = io("https://chatserverv0-0-1.onrender.com/");
     socketRef.current = socket;  
 
     // this will basically update the the messages on once recieved on the server on the client side
