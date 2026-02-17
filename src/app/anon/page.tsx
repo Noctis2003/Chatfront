@@ -116,7 +116,6 @@ export default function Chat(): React.ReactElement {
   // State to track which message we are replying to
   const [replyingTo, setReplyingTo] = useState<Message | null>(null); 
   const [styledSvgs, setStyledSvgs] = useState<StyledSvg[]>([]);
-  const [chatMode, setChatMode] = useState<'local' | 'global'>('local');
   const [onlineUsers, setOnlineUsers] = useState<number>(0);
   const [roomKey, setRoomKey] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<string>('');
@@ -243,13 +242,11 @@ useEffect(() => {
     };
   }, []);
 
+  
  
  
- 
- 
- 
- 
- 
+
+
  const loadMoreMessages = async () => {
       if (!cursor || loading) return;
       const el= containerRef.current;
@@ -394,18 +391,18 @@ useEffect(() => {
         <div className="font-bold text-xl mb-6">Anon</div>
         
         {/* Chat Mode Switch */}
-        <div className="relative z-10 mb-6">
+        <div className="relative z-10 mb-6 ">
           <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-full p-1 shadow-lg">
             <div className="flex">
               <button
-                onClick={() => setRoomKey(localStorage.getItem("room_key") || '')}
+                onClick={() => setRoomKey(localStorage.getItem("room_key") || 'global')}
                 className={`w-1/2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                   roomKey !== 'global'
                     ? 'bg-blue-500/80 text-white shadow-lg shadow-blue-500/20'
                     : 'text-white/60 hover:text-white/80'
                 }`}
               >
-                {roomKey ? `${localStorage.getItem("room_key")}` : 'No Room'}
+                {roomKey ? `${localStorage.getItem("room_key")}` : 'global'}
               </button>
               <button
                 onClick={() => setRoomKey('global')}
@@ -451,20 +448,19 @@ useEffect(() => {
               <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-full p-1 shadow-lg">
                 <div className="flex">
                   <button
-                    onClick={() => setChatMode('local')}
+                    onClick={() => setRoomKey(localStorage.getItem("room_key") || 'global')}
                     className={`w-1/2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                      chatMode === 'local'
+                      roomKey !== 'global'
                         ? 'bg-blue-500/80 text-white shadow-lg shadow-blue-500/20'
                         : 'text-white/60 hover:text-white/80'
                     }`}
                   >
-                    
-                    Local
+                    {roomKey ? `${localStorage.getItem("room_key")}` : 'global'}
                   </button>
                   <button
-                    onClick={() => setChatMode('global')}
+                    onClick={() => setRoomKey('global')}
                     className={`w-1/2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                      chatMode === 'global'
+                      roomKey === 'global'
                         ? 'bg-blue-500/80 text-white shadow-lg shadow-blue-500/20'
                         : 'text-white/60 hover:text-white/80'
                     }`}
