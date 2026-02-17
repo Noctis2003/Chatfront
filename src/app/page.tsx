@@ -77,8 +77,8 @@ function Page() {
         />
       ))}
 
-      <div className="z-10 cursor-pointer">
-        {error ? "I can't do much without your location." : "Tear down the wall."}
+      <div className="z-10 cursor-pointer text-center text-3xl sm:text-4xl md:text-6xl px-4">
+        {error ? "Allow location access" : "Tear down the wall."}
       </div>
 
       <div className="z-10 mt-6 text-lg font-normal text-gray-200">
