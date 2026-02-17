@@ -1,5 +1,7 @@
+// kal tak the hum gareeb
+// aaj hum milte nahi
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { io, Socket } from "socket.io-client";
 import { v4 as uuidv4 } from 'uuid'; // A library to generate unique IDs
@@ -71,7 +73,7 @@ const svgs = [
 ];
 
 interface StyledSvg {
-  src: any;
+  src: string 
   style: React.CSSProperties;
 }
 
@@ -86,7 +88,7 @@ type Message = {
   roomKey: string;
   author: string; 
   text: string; 
-  timestamp: string; 
+  timestamp: string;
   replyTo?: string; 
   reactions: Reaction[]; 
 };
@@ -105,8 +107,8 @@ type ClientToServerEvents = {
   "chat reaction": (payload: { messageId: string; emoji: string }) => void;
   "joinRoom": (roomKey: string) => void;
 };
-
-const availableReactions = ["👍", "❤️", "😂", "😮", "😢"];
+// booze booze
+const availableReactions = ["👍", "👎", "😂", "😡", "😢"];
 
 export default function Chat(): React.ReactElement {
   const [messageInput, setMessageInput] = useState<string>("");
@@ -119,7 +121,12 @@ export default function Chat(): React.ReactElement {
   const [roomKey, setRoomKey] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<string>('');
   const [loading,setloading]=useState<boolean>(true);
-  
+  const [hasMoreMessages, setHasMoreMessages] = useState<boolean>(true);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [scrollable, setScrollable] = useState<boolean>(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const topSentinelRef = useRef<HTMLDivElement>(null);
+  const didMount = useRef(false);
   useEffect(() => {
     const user = `${localStorage.getItem("room_key") || 'anonymous'}` + Math.floor(Math.random() * 100000);
     setCurrentUser(user);
@@ -130,12 +137,20 @@ export default function Chat(): React.ReactElement {
   // These are Socket.IO events for real-time communication
   // "chat message": Sent when a new chat message is created
   // "message updated": Sent when an existing message is updated (e.g., a reaction is added)
+  // scrolltobottom function
+  // to keep the chat scrolled to the latest message
+  // loadmore function 
+  // i do not want it to run on the first render
+
+
 
   const socketRef = useRef<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null); // to prevent multiple connections
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const scrollToBottom = () => {
+   if(!scrollable) return;
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+   
   };
 // how do they work and why do they work?
   useEffect(() => {
@@ -144,7 +159,7 @@ export default function Chat(): React.ReactElement {
     const numRows = Math.ceil(numSvgs / numCols);
    
     setRoomKey(localStorage.getItem("room_key"));
-  // let us set messages now 
+  // let us ser3t messages now 
     const newSvgs = svgs.map((src, index) => {
       const row = Math.floor(index / numCols);
       const col = index % numCols;
@@ -157,7 +172,7 @@ export default function Chat(): React.ReactElement {
       return {
         src,
         style: {
-          position: "absolute" as "absolute",
+          position: "absolute" as const,
           top: `${top}%`,
           left: `${left}%`,
           transform,
@@ -168,7 +183,15 @@ export default function Chat(): React.ReactElement {
   }, []);
 
   
+useEffect(() => {
+  const intervalId = setInterval(() => {
+   didMount.current = true;
+  }, 1000);
 
+  return () => {
+    clearInterval(intervalId);
+  };
+}, []);
   useEffect(() => {
     // Simulate getting online user count (replace with real socket event)
     const randomUsers = Math.floor(Math.random() * 50) + 15; // 15-64 users
@@ -215,26 +238,60 @@ export default function Chat(): React.ReactElement {
     };
   }, []);
 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ const loadMoreMessages = async () => {
+      if (!cursor || loading) return;
+      const el= containerRef.current;
+      if(!el) return;
+      setloading(true);
+      const prevScrollHeight = el.scrollHeight;
+      const res=await fetch(`/api/messages?room=${roomKey}&cursor=${cursor}`);
+      const data=await res.json();
+      console.log("Loaded more messages:", data);
+      setMessages((prevMessages) => [...data.messages, ...prevMessages]);
+      setCursor(data.nextCursor);
+      setHasMoreMessages(!!data.nextCursor);
+      setloading(false);
+      requestAnimationFrame(() => {
+        const newScrollHeight = el.scrollHeight;
+        el.scrollTop = newScrollHeight - prevScrollHeight;
+      }
+      );
+    };
+ 
   useEffect(() => {
     setloading(true);
     if (roomKey && socketRef.current) {
       console.log("Joining room:", roomKey);
       socketRef.current?.emit('joinRoom', roomKey );
     }
+
     const fetchMessages = async () => {
       if (!roomKey) return;
-      const res = await fetch(`http://localhost:3000/api/users?room=${roomKey}`);
+      const res = await fetch(`/api/messages?room=${roomKey}`);
       if (res.ok) {
         const data = await res.json();
         console.log("Fetched messages:", data);
-        setMessages(data);
+        setMessages(data.messages);
+        setCursor(data.nextCursor);
+        setHasMoreMessages(!!data.nextCursor);
+        
+       
       } else {
         console.error("Failed to fetch messages for room:", roomKey);
       }
   
     };
     fetchMessages();
+    
     setloading(false);
+    
   }, [roomKey]);
  
   useEffect(() => {
@@ -243,10 +300,20 @@ export default function Chat(): React.ReactElement {
 
  
 
-  useEffect(scrollToBottom, [messages]); // whenever messages change scroll to bottom
+useEffect(() => {
+ 
+
+  scrollToBottom();
+ 
+}, [messages]);
+  
+  // this is the primary cause of all the scroll related bugs
+
+  
 
   // --- Event Emitters ---
   const sendMessage = (e: React.FormEvent<HTMLFormElement>) => {
+    setScrollable(true);
     e.preventDefault();
     if (!messageInput.trim()) return;
 
@@ -256,7 +323,7 @@ export default function Chat(): React.ReactElement {
       author: currentUser,
       text: messageInput,
       roomKey: roomKey || 'global',
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: String(new Date()), // this is a mismatch here that is causing the bug here
       reactions: [],
       ...(replyingTo && { replyTo: replyingTo.id }), // Add replyTo field if replying
     };
@@ -269,8 +336,41 @@ export default function Chat(): React.ReactElement {
   };
 
   const sendReaction = (messageId: string, emoji: string) => {
+    alert(`You reacted with ${emoji}`);
     socketRef.current?.emit("chat reaction", { messageId, emoji });
   };
+
+
+  useEffect(() => {
+
+  const sentinel = topSentinelRef.current;
+  const container = containerRef.current;
+
+  if (!sentinel || !container) return;
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (
+        entry.isIntersecting &&
+        hasMoreMessages &&
+        !loading &&
+        didMount.current 
+        
+      ) {
+        loadMoreMessages();
+        setScrollable(false);
+      }
+    },
+    {
+      root: container,
+      threshold: 0.1, // more reliable than 1.0
+    }
+  );
+
+  observer.observe(sentinel);
+
+  return () => observer.disconnect();
+}, [hasMoreMessages, loading, cursor]);
 
   return (
     <div className="h-full relative bg-gray-900 text-white font-sans grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[300px_1fr_300px] overflow-hidden">
@@ -375,33 +475,36 @@ export default function Chat(): React.ReactElement {
         </div>
 
         {/* Messaghas finally been debugged and is working fine nowes Display Area */}
-        
-        <div className="relative z-10 flex-grow p-4 overflow-y-auto  ">
+      { /* Autism is Autisming */}
+        <div ref={containerRef} className="relative z-10 flex-grow p-4 overflow-y-auto  ">
+          <div ref={topSentinelRef}></div>
           {loading && <div className="text-center text-gray-500">Loading messages...</div>}
           <div className="space-y-3">
             {messages
               .filter(m => !m.replyTo) // Show only top-level messages
-              .map((m) => {
-                const replies = messages.filter(msg => msg.replyTo === m.id);
+              .map((reply) => {
+                const replies = messages.filter(msg => msg.replyTo === reply.id);
                 
                 return (
-                  <div key={m.id}>
+                  <div key={reply.id}>
                     {/* Main Message */}
                     <div className="bg-white/5 rounded-lg p-3 hover:bg-white/10 transition-colors">
                       {/* Header */}
                       <div className="flex items-center space-x-2 mb-2">
-                        <span className="font-semibold text-blue-400 text-sm">{m.author}</span>
+                        <span className="font-semibold text-blue-400 text-sm">{reply.author}</span>
                         <span className="text-xs text-gray-500">•</span>
-                        <span className="text-xs text-gray-500">{m.timestamp}</span>
+                      <span className="text-xs text-gray-500">
+  {new Date(reply.timestamp).toLocaleString("en-IN")}
+</span>
                       </div>
                       
                       {/* Message Text */}
-                      <p className="text-gray-200 text-sm mb-3">{m.text}</p>
+                      <p className="text-gray-200 text-sm mb-3">{reply.text}</p>
                       
                       {/* Actions Bar */}
                       <div className="flex items-center space-x-4">
                         <button 
-                          onClick={() => setReplyingTo(m)}
+                          onClick={() => setReplyingTo(reply)}
                           className="text-xs text-gray-400 hover:text-blue-400 transition-colors flex items-center space-x-1"
                         >
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -415,7 +518,7 @@ export default function Chat(): React.ReactElement {
                           {availableReactions.map(emoji => (
                             <button 
                               key={emoji}
-                              onClick={() => sendReaction(m.id, emoji)}
+                              onClick={() => sendReaction(reply.id, emoji)}
                               className="text-xs hover:scale-110 transition-transform opacity-60 hover:opacity-100"
                             >
                               {emoji}
@@ -424,9 +527,9 @@ export default function Chat(): React.ReactElement {
                         </div>
                         
                         {/* Reaction Display */}
-                        {m.reactions.length > 0 && (
+                        {reply.reactions.length > 0 && (
                           <div className="flex items-center space-x-1 ml-2">
-                            {m.reactions.map((reaction) => (
+                            {reply.reactions.map((reaction) => (
                               <span key={reaction.emoji} className="bg-gray-700 rounded-full px-2 py-0.5 text-xs">
                                 {reaction.emoji} {reaction.count}
                               </span>
@@ -445,7 +548,9 @@ export default function Chat(): React.ReactElement {
                             <div className="flex items-center space-x-2 mb-2">
                               <span className="font-semibold text-blue-400 text-sm">{reply.author}</span>
                               <span className="text-xs text-gray-500">•</span>
-                              <span className="text-xs text-gray-500">{reply.timestamp}</span>
+                             <span className="text-xs text-gray-500">
+  {new Date(reply.timestamp).toLocaleString("en-IN")}
+</span>
                             </div>
                             
                             {/* Reply Text */}

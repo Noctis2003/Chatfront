@@ -2,6 +2,7 @@
 // but do i hash the room key or just use it as is?
 // for now i'll just use it as is
 // first we need to ge the room key from local storage
+// 
 "use client";
 import React, { useEffect, useState } from "react";
 import Image, { StaticImageData } from "next/image";
@@ -23,33 +24,40 @@ interface StyledSvg {
 }
 
 function Page() {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [styledSvgs, setStyledSvgs] = useState<StyledSvg[]>([]);
-  const [roomFetched, setRoomFetched] = useState(false);
+
   const router = useRouter();
   const { location, error, loading } = useGeolocation();
 
 
-  useEffect(() => {
-    if (location && !loading && !roomFetched) {
-      setRoomFetched(true);
-      const { latitude: lat, longitude: lon } = location;
+ useEffect(() => {
 
-      const fetchRoom = async () => {
-        try {
-          const res = await axios.post("http://localhost:3001/getroom", { lat, lon });
-          console.log("Room fetched:", res.data.room.key);
-          localStorage.setItem("room_key", res.data.room.key);
-          router.push("/anon");
-        } catch (error) {
-          console.error("Error fetching room:", error);
-        }
-      };
+  if (!location) return;
 
-      fetchRoom();
+  const fetchRoom = async () => {
+    try {
+      const lat = location.latitude;
+      const lon = location.longitude;
+
+      console.log("Sending to backend:", lat, lon);
+
+      const res = await axios.post(
+        "http://localhost:3001/getroom",
+        { lat, lon }
+      );
+
+      console.log("Room fetched:", res.data.room.key);
+      localStorage.setItem("room_key", res.data.room.key);
+      router.push("/anon");
+    } catch (err) {
+      console.error("Error fetching room:", err);
     }
+  };
 
-    if (error) console.error("Geolocation error:", error);
-  }, [location, loading, error, roomFetched]);
+  fetchRoom();
+}, [loading]);
+
 
   return (
     <div
