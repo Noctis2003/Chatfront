@@ -97,7 +97,7 @@ type Message = {
 // Updated to handle complex Message objects and new reaction events
 type ServerToClientEvents = {
   "chat message": (msg: Message) => void;  // these are basically event listeners
-  "message updated": (updatedMessage: Message) => void;
+  "message updated": (updatedMessage: Message) => void; // message upadted is useless
 };
 
 
