@@ -268,7 +268,6 @@ useEffect(() => {
     };
  
   useEffect(() => {
-    setloading(true);
     if (roomKey && socketRef.current) {
       console.log("Joining room:", roomKey);
       socketRef.current?.emit('joinRoom', roomKey );
@@ -276,23 +275,23 @@ useEffect(() => {
 
     const fetchMessages = async () => {
       if (!roomKey) return;
-      const res = await fetch(`/api/messages?room=${roomKey}`);
-      if (res.ok) {
-        const data = await res.json();
-        console.log("Fetched messages:", data);
-        setMessages(data.messages);
-        setCursor(data.nextCursor);
-        setHasMoreMessages(!!data.nextCursor);
-        
-       
-      } else {
-        console.error("Failed to fetch messages for room:", roomKey);
+      setloading(true);
+      try {
+        const res = await fetch(`/api/messages?room=${roomKey}`);
+        if (res.ok) {
+          const data = await res.json();
+          console.log("Fetched messages:", data);
+          setMessages(data.messages);
+          setCursor(data.nextCursor);
+          setHasMoreMessages(!!data.nextCursor);
+        } else {
+          console.error("Failed to fetch messages for room:", roomKey);
+        }
+      } finally {
+        setloading(false);
       }
-  
     };
     fetchMessages();
-    
-    setloading(false);
     
   }, [roomKey]);
  
@@ -476,7 +475,12 @@ useEffect(() => {
       { /* Autism is Autisming */}
         <div ref={containerRef} className="relative z-10 flex-grow p-4 overflow-y-auto  ">
           <div ref={topSentinelRef}></div>
-          {loading && <div className="text-center text-gray-500">Loading messages...</div>}
+          {loading && (
+            <div className="flex flex-col items-center justify-center py-8 space-y-3">
+              <div className="w-8 h-8 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin"></div>
+              <span className="text-sm text-gray-400">Loading messages...</span>
+            </div>
+          )}
           <div className="space-y-3">
             {messages
               .filter(m => !m.replyTo) // Show only top-level messages
