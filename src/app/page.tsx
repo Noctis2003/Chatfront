@@ -98,6 +98,14 @@ function Page() {
           50% { transform: translateX(20%); }
           100% { transform: translateX(-20%); }
         }
+        @keyframes radarBlip {
+          0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.3); filter: drop-shadow(0 0 6px rgba(255,255,255,0.8)); }
+          8%   { opacity: 1; transform: translate(-50%, -50%) scale(1.3); filter: drop-shadow(0 0 12px rgba(255,255,255,1)); }
+          20%  { opacity: 0.8; transform: translate(-50%, -50%) scale(1); filter: drop-shadow(0 0 8px rgba(255,255,255,0.6)); }
+          45%  { opacity: 0.25; transform: translate(-50%, -50%) scale(0.95); filter: drop-shadow(0 0 2px rgba(255,255,255,0.2)); }
+          60%  { opacity: 0; transform: translate(-50%, -50%) scale(0.9); filter: none; }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); filter: none; }
+        }
       `}</style>
 
       {styledSvgs.map((svg, index) => (
@@ -148,10 +156,29 @@ function Page() {
                 }}
               />
             </div>
-            {/* Ping dots that appear randomly */}
-            <div className="absolute top-[30%] left-[65%] w-1.5 h-1.5 rounded-full bg-white/80 animate-ping" style={{ animationDuration: "3s" }} />
-            <div className="absolute top-[55%] left-[25%] w-1 h-1 rounded-full bg-white/60 animate-ping" style={{ animationDuration: "4s", animationDelay: "1s" }} />
-            <div className="absolute top-[70%] left-[60%] w-1 h-1 rounded-full bg-white/50 animate-ping" style={{ animationDuration: "3.5s", animationDelay: "2s" }} />
+            {/* Emoji blips revealed by radar sweep */}
+            {[
+              { emoji: "🌿", top: "21%", left: "74%", delay: -0.22 },
+              { emoji: "🚬", top: "77%", left: "72%", delay: -0.78 },
+              { emoji: "🍺", top: "71%", left: "25%", delay: -1.28 },
+              { emoji: "🍷", top: "32%", left: "18%", delay: -1.67 },
+              { emoji: "💨", top: "40%", left: "30%", delay: -1.06 },
+            ].map((blip, i) => (
+              <div
+                key={i}
+                className="absolute text-lg sm:text-xl"
+                style={{
+                  top: blip.top,
+                  left: blip.left,
+                  transform: "translate(-50%, -50%)",
+                  animation: "radarBlip 2s ease-out infinite",
+                  animationDelay: `${blip.delay}s`,
+                  opacity: 0,
+                }}
+              >
+                {blip.emoji}
+              </div>
+            ))}
           </div>
           <p className="text-base font-normal text-white/90 tracking-widest uppercase animate-pulse drop-shadow-md">
             Scanning area...
