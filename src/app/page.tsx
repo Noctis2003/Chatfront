@@ -2,7 +2,7 @@
 // but do i hash the room key or just use it as is?
 // for now i'll just use it as is
 // first we need to ge the room key from local storage
-// 
+
 "use client";
 import React, { useEffect, useState } from "react";
 import Image, { StaticImageData } from "next/image";
@@ -43,7 +43,7 @@ function Page() {
       console.log("Sending to backend:", lat, lon);
 
       const res = await axios.post(
-        "https://chatserverv0-0-1.onrender.com/getroom",
+        "https://chatserver-713317371199.asia-south2.run.app/getroom",
         { lat, lon }
       );
 
@@ -156,29 +156,7 @@ function Page() {
                 }}
               />
             </div>
-            {/* Emoji blips revealed by radar sweep */}
-            {[
-              { emoji: "🌿", top: "21%", left: "74%", delay: -0.22 },
-              { emoji: "🚬", top: "77%", left: "72%", delay: -0.78 },
-              { emoji: "🍺", top: "71%", left: "25%", delay: -1.28 },
-              { emoji: "🍷", top: "32%", left: "18%", delay: -1.67 },
-              { emoji: "💨", top: "40%", left: "30%", delay: -1.06 },
-            ].map((blip, i) => (
-              <div
-                key={i}
-                className="absolute text-lg sm:text-xl"
-                style={{
-                  top: blip.top,
-                  left: blip.left,
-                  transform: "translate(-50%, -50%)",
-                  animation: "radarBlip 2s ease-out infinite",
-                  animationDelay: `${blip.delay}s`,
-                  opacity: 0,
-                }}
-              >
-                {blip.emoji}
-              </div>
-            ))}
+          
           </div>
           <p className="text-base font-normal text-white/90 tracking-widest uppercase animate-pulse drop-shadow-md">
             Scanning area...
